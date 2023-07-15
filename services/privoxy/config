@@ -1,0 +1,2 @@
+forward-socks5t / localhost:9050 .
+listen-address 0.0.0.0:8118
