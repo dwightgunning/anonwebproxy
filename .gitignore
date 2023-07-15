@@ -8,3 +8,12 @@
 
 # macOS-specific files
 .DS_Store
+
+# Act Runner
+.act/.env
+!.act/.env*.template
+.act/.vars*
+!.act/.vars*.template
+.act/.secrets*
+!.act/.secrets*.template
+.act/tmp

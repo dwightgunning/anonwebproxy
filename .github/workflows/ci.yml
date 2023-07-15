@@ -1,0 +1,36 @@
+name: Lint and build the Docker image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3.5.3
+
+      - name: Lint the Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.9.1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.2.0
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v4.1.1
+        with:
+          context: .
+          push: false
+          tags: anonwebproxy:CI
+          platforms: linux/amd64,linux/arm64,linux/arm/v7

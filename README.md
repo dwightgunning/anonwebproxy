@@ -25,6 +25,17 @@ Linting with [Hadolint](https://github.com/hadolint/hadolint) from the command l
 hadolint Dockerfile
 ```
 
+### Continuous Integration
+
+The ci workflow can be run locally with [act](https://github.com/nektos/act).
+
+```(sh)
+act \
+  --env-file .act/.env \
+  --secret-file .act/.secrets \
+  --workflows .github/workflows/ci.yml
+```
+
 ## Copyright and license information
 
 Copyright (c) 2023 Dwight Gunning. All rights reserved.
