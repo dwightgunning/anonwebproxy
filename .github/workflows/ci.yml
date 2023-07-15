@@ -1,7 +1,9 @@
-name: Lint and build the Docker image
+name: Lint, build and publish the Docker image
 
 on:
   push:
+    tags:
+      - "v*"
     branches:
       - main
   pull_request:
@@ -21,16 +23,36 @@ jobs:
         with:
           dockerfile: Dockerfile
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2.2.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Prepare the Docker image metadata
+        id: meta
+        uses: docker/metadata-action@v4.6.0
+        with:
+          images: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/anonwebproxy
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.9.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2.2.0
 
-      - name: Build the Docker image
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v4.1.1
         with:
           context: .
-          push: false
-          tags: anonwebproxy:CI
+          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          tags: ${{ steps.meta.outputs.tags }}
