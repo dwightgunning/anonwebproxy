@@ -1,4 +1,4 @@
-name: Lint, build and publish the Docker image
+name: Lint, build and push the Docker image
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - "*"
 
 jobs:
-  lint:
+  lint-build-push:
     runs-on: ubuntu-22.04
 
     steps:
