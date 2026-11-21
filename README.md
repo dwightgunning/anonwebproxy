@@ -4,7 +4,7 @@ An anonymous web proxy Docker image that combines [Privoxy](https://www.privoxy.
 
 <https://hub.docker.com/r/dwightgunning/anonwebproxy>
 
-The image is Alpine based, includes a health check and remains lightweight at ~10 MB. Tor and Privoxy are launched via runit.
+The image is Alpine based and includes a health check. Tor and Privoxy are launched via runit.
 
 ## Running the image
 
