@@ -1,21 +1,29 @@
 #!/bin/sh
 
-# Checks anonimity by making a request to the TOR check api. If the check fails, the script terminates with a non-zero code.
+# Checks anonymity by asking the Tor Project's check API, through Privoxy,
+# whether the request arrived from a Tor exit. Exits non-zero if not.
 
-anonymity_check_response=$(
+# --max-time stays under the HEALTHCHECK --timeout, so a slow request
+# fails here with a message rather than being killed silently.
+if ! response=$(
   curl \
-    --no-progress-meter \
+    --fail \
+    --silent \
+    --show-error \
     --connect-timeout 6 \
-    --max-time 12 \
+    --max-time 9 \
     --proxy localhost:8118 \
     --header "Accept: application/json" \
-    https://check.torproject.org/api/ip
-)
-anonymity_regex="^.*\"IsTor\":true.*$"
-
-if [[ ! $anonymity_check_response =~ $anonymity_regex ]]; then
-  echo "Anonymity check failed: ${anonymity_check_response}"
+    https://check.torproject.org/api/ip 2>&1
+); then
+  echo "Anonymity check failed: ${response}"
   exit 1
 fi
 
-echo "Anonymity check succeeded: ${anonymity_check_response}"
+# /bin/sh is BusyBox ash, whose [[ ]] has no =~ operator.
+if ! printf '%s' "$response" | grep -Eq '"IsTor" *: *true'; then
+  echo "Anonymity check failed: ${response}"
+  exit 1
+fi
+
+echo "Anonymity check succeeded: ${response}"
