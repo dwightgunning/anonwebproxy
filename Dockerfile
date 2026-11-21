@@ -19,15 +19,15 @@ COPY --link ./healthcheck.sh /usr/local/bin/healthcheck.sh
 
 # runsv writes each service's supervise state under /etc/service. The
 # config stays root-owned so the proxies can't rewrite it.
-RUN addgroup -S anonwebproxy \
-  && adduser -S anonwebproxy -G anonwebproxy \
+RUN addgroup -S -g 10001 anonwebproxy \
+  && adduser -S -u 10001 -G anonwebproxy anonwebproxy \
   && chown -R anonwebproxy:anonwebproxy /etc/service
 
-USER anonwebproxy
+USER 10001:10001
 
 EXPOSE 8118 9050
 
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
-  CMD /usr/local/bin/healthcheck.sh
+  CMD ["/usr/local/bin/healthcheck.sh"]
 
 CMD ["runsvdir", "/etc/service"]
