@@ -17,12 +17,11 @@ COPY --link ./services/tor/run /etc/service/tor/run
 COPY --link ./services/privoxy/run /etc/service/privoxy/run
 COPY --link ./healthcheck.sh /usr/local/bin/healthcheck.sh
 
+# runsv writes each service's supervise state under /etc/service. The
+# config stays root-owned so the proxies can't rewrite it.
 RUN addgroup -S anonwebproxy \
   && adduser -S anonwebproxy -G anonwebproxy \
-  && chown -R anonwebproxy:anonwebproxy /etc/tor \
-  && chown -R anonwebproxy:anonwebproxy /etc/privoxy \
-  && chown -R anonwebproxy:anonwebproxy /etc/service \
-  && chown -R anonwebproxy:anonwebproxy /usr/local/bin/healthcheck.sh
+  && chown -R anonwebproxy:anonwebproxy /etc/service
 
 USER anonwebproxy
 
