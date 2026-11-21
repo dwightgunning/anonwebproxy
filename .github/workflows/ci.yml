@@ -7,34 +7,39 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - "*"
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: dwightgunning/anonwebproxy
 
 jobs:
   lint-build-push:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Lint the Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         with:
           dockerfile: Dockerfile
 
+      # Only tag pushes publish. Pull requests from forks get no secrets.
       - name: Login to Docker Hub
-        uses: docker/login-action@v2.2.0
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Prepare the Docker image metadata
         id: meta
-        uses: docker/metadata-action@v4.6.0
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
-          images: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/anonwebproxy
+          images: ${{ env.IMAGE }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -42,14 +47,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.9.1
-
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.2.0
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4.1.1
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           labels: ${{ steps.meta.outputs.labels }}
