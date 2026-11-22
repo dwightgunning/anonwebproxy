@@ -1,1 +1,9 @@
 SOCKSPort 0.0.0.0:9050
+
+# Only loopback and the RFC 1918 ranges Docker networks use. First match
+# wins; without the final reject, unmatched clients would be accepted.
+SocksPolicy accept 127.0.0.0/8
+SocksPolicy accept 10.0.0.0/8
+SocksPolicy accept 172.16.0.0/12
+SocksPolicy accept 192.168.0.0/16
+SocksPolicy reject *

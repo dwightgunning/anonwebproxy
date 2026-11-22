@@ -1,2 +1,9 @@
 forward-socks5t / localhost:9050 .
 listen-address 0.0.0.0:8118
+
+# Only loopback and the RFC 1918 ranges Docker networks use. Once any
+# permit-access line is present, every other client is refused.
+permit-access 127.0.0.0/8
+permit-access 10.0.0.0/8
+permit-access 172.16.0.0/12
+permit-access 192.168.0.0/16
